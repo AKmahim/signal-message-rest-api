@@ -272,7 +272,7 @@ MIT
 
 
 # Request verification code
-curl -X POST "http://localhost:8081/v1/register/+8801635227460"
+curl -X POST "http://localhost:8081/v1/register/+880123456789"
 
 # Verify with the code you received
 curl -X POST -H "Content-Type: application/json" \

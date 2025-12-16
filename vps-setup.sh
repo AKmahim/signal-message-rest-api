@@ -78,7 +78,7 @@ PORT=3000
 SIGNAL_CLI_REST_API_URL=http://localhost:8080
 
 # Your registered Signal phone number (UPDATE THIS!)
-SIGNAL_SENDER_NUMBER=+8801635227460
+SIGNAL_SENDER_NUMBER=+8801234567890
 EOF
 echo -e "${GREEN}✅ .env file created${NC}"
 
