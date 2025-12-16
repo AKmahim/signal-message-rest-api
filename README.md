@@ -5,10 +5,10 @@ A comprehensive REST API for sending messages via Signal messenger with an admin
 ## 📸 Screenshots
 
 ### Admin Login
-![Admin Login](screenshots/login.png)
+![Admin Login](demo1.png)
 
 ### Dashboard
-![Dashboard](screenshots/dashboard.png)
+![Dashboard](demo2.png)
 
 ## ✨ Features
 
