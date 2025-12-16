@@ -1,4 +1,5 @@
 const signalService = require('../services/signalService');
+const MessageModel = require('../models/MessageModel');
 
 /**
  * Send a message to a single recipient
@@ -10,6 +11,13 @@ const sendMessage = async (req, res) => {
 
     const result = await signalService.sendMessage(phone_number, message);
 
+    // Log message to database
+    try {
+      await MessageModel.create(phone_number, message, 'sent');
+    } catch (dbError) {
+      console.error('Database logging error:', dbError);
+    }
+
     res.status(200).json({
       success: true,
       message: 'Message sent successfully',
@@ -17,6 +25,14 @@ const sendMessage = async (req, res) => {
     });
   } catch (error) {
     console.error('Send message error:', error.message);
+    
+    // Log failed message to database
+    try {
+      await MessageModel.create(req.body.phone_number, req.body.message, 'failed');
+    } catch (dbError) {
+      console.error('Database logging error:', dbError);
+    }
+    
     res.status(500).json({
       success: false,
       error: error.message,
@@ -34,6 +50,15 @@ const sendBulkMessage = async (req, res) => {
 
     const result = await signalService.sendMessageToMultiple(phone_numbers, message);
 
+    // Log each message to database
+    try {
+      for (const phone of phone_numbers) {
+        await MessageModel.create(phone, message, 'sent');
+      }
+    } catch (dbError) {
+      console.error('Database logging error:', dbError);
+    }
+
     res.status(200).json({
       success: true,
       message: `Message sent to ${phone_numbers.length} recipients`,
@@ -41,6 +66,16 @@ const sendBulkMessage = async (req, res) => {
     });
   } catch (error) {
     console.error('Send bulk message error:', error.message);
+    
+    // Log failed messages to database
+    try {
+      for (const phone of req.body.phone_numbers) {
+        await MessageModel.create(phone, req.body.message, 'failed');
+      }
+    } catch (dbError) {
+      console.error('Database logging error:', dbError);
+    }
+    
     res.status(500).json({
       success: false,
       error: error.message,

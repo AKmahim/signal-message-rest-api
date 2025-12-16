@@ -1,6 +1,16 @@
 # Signal REST API
 
-A simple REST API for sending messages via Signal messenger.
+A comprehensive REST API for sending messages via Signal messenger with an admin panel for monitoring and analytics.
+
+## ✨ Features
+
+- 📨 Send messages to single or multiple recipients
+- 📊 Admin dashboard with message statistics
+- 🔍 Advanced filtering (by phone, date, date range)
+- 📥 Export message history to CSV
+- 🔒 Secure password-protected admin panel
+- 💾 SQLite database for message logging
+- 📱 Mobile-responsive interface
 
 ## Prerequisites
 
@@ -71,6 +81,37 @@ npm run dev
 npm start
 ```
 
+The API will start on `http://localhost:3000`
+
+## 🎯 Quick Start Testing
+
+Once the API is running:
+
+1. **Access Admin Panel:** http://localhost:3000/admin
+   - Email: `admin@gp.com`
+   - Password: `Admin@Event#GP`
+
+2. **Send a test message:**
+```bash
+curl -X POST http://localhost:3000/api/send \
+  -H "Content-Type: application/json" \
+  -d '{"phone_number": "+1234567890", "message": "Test message"}'
+```
+
+3. **View in admin panel:** Refresh dashboard to see the message logged
+
+## 📊 Admin Panel
+
+Access the admin dashboard at `http://localhost:3000/admin`
+
+**Features:**
+- View total messages sent
+- Filter by phone number or date
+- Export data to CSV
+- Real-time message tracking
+
+👉 **[Full Admin Panel Documentation](ADMIN_PANEL.md)**
+
 ## API Endpoints
 
 ### Send Message to Single Recipient
@@ -110,6 +151,14 @@ Content-Type: application/json
 
 ```http
 GET /api/health
+```
+
+### Admin Panel
+
+```http
+GET /admin              # Login page
+GET /admin/dashboard    # Dashboard (requires authentication)
+GET /admin/logout       # Logout
 ```
 
 ## Example Usage with cURL
@@ -158,6 +207,55 @@ Validation errors:
   ]
 }
 ```
+
+## 📁 Project Structure
+
+```
+signal-api/
+├── src/
+│   ├── config/
+│   │   ├── index.js          # App configuration
+│   │   └── database.js       # SQLite setup
+│   ├── controllers/
+│   │   ├── messageController.js
+│   │   └── adminController.js
+│   ├── middleware/
+│   │   ├── auth.js           # Authentication middleware
+│   │   └── validation.js     # Request validation
+│   ├── models/
+│   │   ├── MessageModel.js   # Message database operations
+│   │   └── AdminModel.js     # Admin user operations
+│   ├── routes/
+│   │   ├── messageRoutes.js
+│   │   └── adminRoutes.js
+│   ├── services/
+│   │   └── signalService.js  # Signal CLI integration
+│   ├── views/
+│   │   └── admin/
+│   │       ├── login.ejs     # Login page
+│   │       └── dashboard.ejs # Dashboard
+│   └── index.js              # Main entry point
+├── data/
+│   └── signal.db             # SQLite database
+├── .env                      # Environment variables
+├── package.json
+├── README.md
+├── ADMIN_PANEL.md           # Admin panel docs
+└── VPS_SETUP.md             # VPS deployment guide
+```
+
+## 📚 Documentation
+
+- **[Admin Panel Guide](ADMIN_PANEL.md)** - Complete admin panel documentation
+- **[VPS Setup Guide](VPS_SETUP.md)** - Deploy to production server
+
+## 🔒 Security Notes
+
+- All admin routes are password-protected
+- Passwords are hashed with bcrypt
+- Session-based authentication
+- SQL injection prevention with parameterized queries
+- Change default admin credentials in production
 
 ## License
 
