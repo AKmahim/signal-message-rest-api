@@ -3,6 +3,9 @@ const bcrypt = require('bcryptjs');
 const Database = require('better-sqlite3');
 const path = require('path');
 
+//create command 
+// node create-admin.js "admin@example" "12345678"
+
 // Ensure data directory exists
 const fs = require('fs');
 const dataDir = path.join(__dirname, 'data');
