@@ -41,8 +41,8 @@ npm start
 | API Health | http://localhost:3000/api/health |
 
 ### Admin Credentials
-- **Email:** `admin@gp.com`
-- **Password:** `Admin@Event#GP`
+- **Email:** `admin@example`
+- **Password:** `12345678`
 
 ---
 

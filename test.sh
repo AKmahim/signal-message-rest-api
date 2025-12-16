@@ -41,8 +41,8 @@ fi
 # Test 4: Admin Panel Access
 echo "${BLUE}Test 4: Admin Panel${NC}"
 echo "Admin Panel URL: ${GREEN}$BASE_URL/admin${NC}"
-echo "Email: admin@gp.com"
-echo "Password: Admin@Event#GP"
+echo "Email: admin@example.com"
+echo "Password: 12345678"
 echo ""
 
 # Test 5: Check Database

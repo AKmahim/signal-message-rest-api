@@ -128,8 +128,8 @@ setTimeout(() => {
     console.log('   npm start\n');
     console.log('📊 Admin Panel:');
     console.log('   http://localhost:3000/admin');
-    console.log('   Email: admin@gp.com');
-    console.log('   Password: Admin@Event#GP\n');
+    console.log('   Email: admin@example.com');
+    console.log('   Password: 12345678\n');
     process.exit(0);
   }
 }, 100);

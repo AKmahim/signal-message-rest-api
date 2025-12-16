@@ -29,8 +29,8 @@ db.serialize(() => {
   `);
 
   // Create default admin user
-  const defaultEmail = 'admin@gp.com';
-  const defaultPassword = 'Admin@Event#GP';
+  const defaultEmail = 'admin@example.com';
+  const defaultPassword = '12345678';
   
   db.get('SELECT * FROM admin_users WHERE email = ?', [defaultEmail], (err, row) => {
     if (!row) {

@@ -40,12 +40,7 @@ app.get('/', (req, res) => {
     name: 'Signal REST API',
     version: '1.0.0',
     description: 'REST API for sending Signal messages',
-    endpoints: {
-      'POST /api/send': 'Send a message to a single recipient',
-      'POST /api/send/bulk': 'Send a message to multiple recipients',
-      'GET /api/health': 'Check Signal CLI REST API health',
-      'GET /admin': 'Admin panel login',
-    },
+    
   });
 });
 

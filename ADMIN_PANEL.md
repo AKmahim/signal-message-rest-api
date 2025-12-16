@@ -9,8 +9,8 @@ The Signal REST API now includes a comprehensive admin panel for monitoring and 
 ## 🔐 Admin Credentials
 
 **Default Login:**
-- **Email:** `admin@gp.com`
-- **Password:** `Admin@Event#GP`
+- **Email:** `admin@example.com`
+- **Password:** `12345678`
 
 ⚠️ **Important:** Change these credentials in production by directly modifying the database.
 
@@ -66,8 +66,8 @@ http://your-domain.com/admin
 
 ### Step 1: Login
 1. Navigate to `http://localhost:3000/admin`
-2. Enter email: `admin@gp.com`
-3. Enter password: `Admin@Event#GP`
+2. Enter email: `admin@example.com`
+3. Enter password: `12345678`
 4. Click **Login**
 
 ### Step 2: View Dashboard
@@ -282,7 +282,7 @@ sqlite3 data/signal.db "SELECT COUNT(*) FROM messages;"
 ```
 ┌─────────────────────────────────────────────────────┐
 │  📊 Signal API Dashboard                            │
-│  admin@gp.com                          [Logout]     │
+│  admin@example.com                          [Logout]     │
 └─────────────────────────────────────────────────────┘
 
 ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
@@ -321,7 +321,7 @@ sqlite3 ~/apps/signal-api/data/signal.db
 node -e "const bcrypt = require('bcryptjs'); bcrypt.hash('YourNewPassword', 10, (e,h) => console.log(h));"
 
 # Update password in database
-UPDATE admin_users SET password = 'PASTE_HASH_HERE' WHERE email = 'admin@gp.com';
+UPDATE admin_users SET password = 'PASTE_HASH_HERE' WHERE email = 'admin@example.com';
 
 # Exit
 .exit

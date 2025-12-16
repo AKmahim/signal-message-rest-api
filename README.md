@@ -88,8 +88,8 @@ The API will start on `http://localhost:3000`
 Once the API is running:
 
 1. **Access Admin Panel:** http://localhost:3000/admin
-   - Email: `admin@gp.com`
-   - Password: `Admin@Event#GP`
+   - Email: `admin@example.com`
+   - Password: `12345678`
 
 2. **Send a test message:**
 ```bash
