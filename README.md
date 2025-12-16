@@ -2,6 +2,14 @@
 
 A comprehensive REST API for sending messages via Signal messenger with an admin panel for monitoring and analytics.
 
+## 📸 Screenshots
+
+### Admin Login
+![Admin Login](screenshots/login.png)
+
+### Dashboard
+![Dashboard](screenshots/dashboard.png)
+
 ## ✨ Features
 
 - 📨 Send messages to single or multiple recipients
