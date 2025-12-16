@@ -263,6 +263,176 @@
       font-size: 16px;
     }
 
+    /* Signal Connection Styles */
+    .signal-connection {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+    }
+
+    .signal-connection h2 {
+      margin-bottom: 15px;
+      color: #333;
+      font-size: 18px;
+    }
+
+    .signal-status {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .status-connected {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-disconnected {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .status-connected .status-dot {
+      background: #28a745;
+    }
+
+    .status-disconnected .status-dot {
+      background: #dc3545;
+    }
+
+    .btn-signal {
+      background: linear-gradient(135deg, #3a76f0 0%, #2958c4 100%);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-signal:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(58, 118, 240, 0.4);
+    }
+
+    .btn-signal:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal h3 {
+      margin-bottom: 10px;
+      color: #333;
+      font-size: 20px;
+    }
+
+    .modal p {
+      color: #666;
+      margin-bottom: 20px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .qr-container {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .qr-container img {
+      max-width: 250px;
+      width: 100%;
+      height: auto;
+    }
+
+    .qr-loading {
+      padding: 40px;
+      color: #666;
+    }
+
+    .qr-error {
+      padding: 20px;
+      color: #dc3545;
+      background: #f8d7da;
+      border-radius: 8px;
+    }
+
+    .modal-close {
+      background: #e1e8ed;
+      color: #333;
+      padding: 10px 30px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .modal-close:hover {
+      background: #d1d8dd;
+    }
+
+    .signal-info {
+      background: #e7f3ff;
+      border-left: 4px solid #3a76f0;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin-top: 15px;
+      font-size: 13px;
+      color: #1a4d8c;
+    }
+
     @media (max-width: 768px) {
       .header {
         flex-direction: column;
@@ -307,6 +477,38 @@
       <div class="stat-card">
         <h3>Today's Messages</h3>
         <div class="stat-value" id="todayMessages">0</div>
+      </div>
+    </div>
+
+    <!-- Signal Connection -->
+    <div class="signal-connection">
+      <h2>📱 Signal Connection</h2>
+      <div class="signal-status">
+        <div id="signalStatus" class="status-indicator status-disconnected">
+          <span class="status-dot"></span>
+          <span id="signalStatusText">Checking...</span>
+        </div>
+        <button class="btn-signal" id="connectSignalBtn" onclick="showQRCode()">
+          🔗 Connect Signal App
+        </button>
+        <button class="btn btn-secondary" onclick="checkSignalStatus()">
+          🔄 Refresh Status
+        </button>
+      </div>
+      <div class="signal-info">
+        <strong>💡 Tip:</strong> Click "Connect Signal App" to display a QR code. Open Signal on your phone → Settings → Linked Devices → Link New Device → Scan the QR code.
+      </div>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div class="modal-overlay" id="qrModal">
+      <div class="modal">
+        <h3>📱 Link Signal App</h3>
+        <p>Open Signal on your phone, go to <strong>Settings → Linked Devices → Link New Device</strong>, then scan this QR code:</p>
+        <div class="qr-container" id="qrContainer">
+          <div class="qr-loading">Loading QR code...</div>
+        </div>
+        <button class="modal-close" onclick="closeQRModal()">Close</button>
       </div>
     </div>
 
@@ -356,6 +558,68 @@
     // Load messages on page load
     document.addEventListener('DOMContentLoaded', () => {
       loadMessages();
+      checkSignalStatus();
+    });
+
+    // Signal Connection Functions
+    async function checkSignalStatus() {
+      const statusEl = document.getElementById('signalStatus');
+      const statusText = document.getElementById('signalStatusText');
+      const connectBtn = document.getElementById('connectSignalBtn');
+      
+      try {
+        const response = await fetch('/admin/api/signal/status');
+        const data = await response.json();
+        
+        if (data.success && data.connected) {
+          statusEl.className = 'status-indicator status-connected';
+          statusText.textContent = 'Connected';
+          connectBtn.textContent = '✅ Signal Connected';
+        } else {
+          statusEl.className = 'status-indicator status-disconnected';
+          statusText.textContent = 'Not Connected';
+          connectBtn.textContent = '🔗 Connect Signal App';
+        }
+      } catch (error) {
+        console.error('Error checking Signal status:', error);
+        statusEl.className = 'status-indicator status-disconnected';
+        statusText.textContent = 'Unable to check';
+      }
+    }
+
+    async function showQRCode() {
+      const modal = document.getElementById('qrModal');
+      const container = document.getElementById('qrContainer');
+      
+      modal.classList.add('active');
+      container.innerHTML = '<div class="qr-loading">⏳ Generating QR code...</div>';
+      
+      try {
+        const response = await fetch('/admin/api/signal/qrcode');
+        const data = await response.json();
+        
+        if (data.success) {
+          container.innerHTML = `<img src="${data.qrCode}" alt="Signal QR Code" />`;
+        } else {
+          container.innerHTML = `<div class="qr-error">❌ ${data.error}</div>`;
+        }
+      } catch (error) {
+        console.error('Error getting QR code:', error);
+        container.innerHTML = '<div class="qr-error">❌ Failed to generate QR code. Make sure Signal CLI is running.</div>';
+      }
+    }
+
+    function closeQRModal() {
+      document.getElementById('qrModal').classList.remove('active');
+      // Refresh status after closing modal
+      setTimeout(checkSignalStatus, 1000);
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('qrModal').addEventListener('click', (e) => {
+      if (e.target.id === 'qrModal') {
+        closeQRModal();
+      }
     });
 
     async function loadMessages(filters = {}) {

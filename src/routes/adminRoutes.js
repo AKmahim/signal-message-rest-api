@@ -23,5 +23,7 @@ router.get('/dashboard', isAuthenticated, adminController.showDashboard);
 // API routes
 router.get('/api/messages', isAuthenticated, adminController.getMessages);
 router.get('/api/stats', isAuthenticated, adminController.getStats);
+router.get('/api/signal/qrcode', isAuthenticated, adminController.getSignalQRCode);
+router.get('/api/signal/status', isAuthenticated, adminController.getSignalStatus);
 
 module.exports = router;

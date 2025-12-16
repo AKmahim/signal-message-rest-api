@@ -1,5 +1,7 @@
 const AdminModel = require('../models/AdminModel');
 const MessageModel = require('../models/MessageModel');
+const axios = require('axios');
+const config = require('../config');
 
 // Show login page
 const showLogin = (req, res) => {
@@ -106,6 +108,47 @@ const getStats = async (req, res) => {
   }
 };
 
+// Get Signal QR Code for linking
+const getSignalQRCode = async (req, res) => {
+  try {
+    const response = await axios.get(
+      `${config.signalCliRestApiUrl}/v1/qrcodelink?device_name=signal-api-admin`,
+      { responseType: 'arraybuffer' }
+    );
+    
+    const base64Image = Buffer.from(response.data, 'binary').toString('base64');
+    res.json({
+      success: true,
+      qrCode: `data:image/png;base64,${base64Image}`,
+    });
+  } catch (error) {
+    console.error('QR Code error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate QR code. Make sure Signal CLI is running.',
+    });
+  }
+};
+
+// Check Signal connection status
+const getSignalStatus = async (req, res) => {
+  try {
+    const response = await axios.get(`${config.signalCliRestApiUrl}/v1/accounts`);
+    res.json({
+      success: true,
+      accounts: response.data,
+      connected: response.data && response.data.length > 0,
+    });
+  } catch (error) {
+    console.error('Signal status error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to check Signal status',
+      connected: false,
+    });
+  }
+};
+
 module.exports = {
   showLogin,
   login,
@@ -113,4 +156,6 @@ module.exports = {
   showDashboard,
   getMessages,
   getStats,
+  getSignalQRCode,
+  getSignalStatus,
 };
