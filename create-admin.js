@@ -18,7 +18,7 @@ const hashedPassword = bcrypt.hashSync(password, 10);
 
 // Create table if not exists
 db.exec(`
-  CREATE TABLE IF NOT EXISTS admins (
+  CREATE TABLE IF NOT EXISTS admin_users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
