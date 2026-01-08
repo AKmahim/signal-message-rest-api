@@ -560,6 +560,7 @@
 
   <script>
     let allMessages = [];
+    let currentPhoneNumber = null; // Store the connected phone number
 
     // Load messages on page load
     document.addEventListener('DOMContentLoaded', () => {
@@ -579,18 +580,18 @@
         const response = await fetch('/admin/api/signal/status');
         const data = await response.json();
         
-        if (data.success && data.connected) {
+        if (data.success && data.connected && data.phoneNumber) {
+          currentPhoneNumber = data.phoneNumber; // Store for disconnect
           statusEl.className = 'status-indicator status-connected';
           statusText.textContent = 'Connected';
           connectBtn.textContent = '✅ Signal Connected';
           disconnectBtn.style.display = 'inline-block';
           
-          // Show connected phone if available
-          if (data.phoneNumber) {
-            connectedPhoneEl.textContent = `📱 ${data.phoneNumber}`;
-            connectedPhoneEl.style.display = 'block';
-          }
+          // Show connected phone
+          connectedPhoneEl.textContent = `📱 ${data.phoneNumber}`;
+          connectedPhoneEl.style.display = 'block';
         } else {
+          currentPhoneNumber = null;
           statusEl.className = 'status-indicator status-disconnected';
           statusText.textContent = 'Not Connected';
           connectBtn.textContent = '🔗 Connect Signal App';
@@ -599,6 +600,7 @@
         }
       } catch (error) {
         console.error('Error checking Signal status:', error);
+        currentPhoneNumber = null;
         statusEl.className = 'status-indicator status-disconnected';
         statusText.textContent = 'Unable to check';
         disconnectBtn.style.display = 'none';
@@ -607,7 +609,12 @@
     }
 
     async function disconnectSignal() {
-      if (!confirm('Are you sure you want to disconnect the current Signal account? You will need to reconnect with a QR code.')) {
+      if (!currentPhoneNumber) {
+        alert('❌ No phone number found. Please refresh status.');
+        return;
+      }
+
+      if (!confirm(`Are you sure you want to disconnect ${currentPhoneNumber}? You will need to reconnect with a QR code.`)) {
         return;
       }
 
@@ -621,7 +628,8 @@
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
-          }
+          },
+          body: JSON.stringify({ phoneNumber: currentPhoneNumber })
         });
         const data = await response.json();
 

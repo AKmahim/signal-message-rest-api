@@ -134,10 +134,14 @@ const getSignalQRCode = async (req, res) => {
 const getSignalStatus = async (req, res) => {
   try {
     const response = await axios.get(`${config.signalCliRestApiUrl}/v1/accounts`);
+    const accounts = response.data || [];
+    const phoneNumber = accounts.length > 0 ? accounts[0] : null;
+    
     res.json({
       success: true,
-      accounts: response.data,
-      connected: response.data && response.data.length > 0,
+      accounts: accounts,
+      connected: accounts.length > 0,
+      phoneNumber: phoneNumber,
     });
   } catch (error) {
     console.error('Signal status error:', error.message);
@@ -145,6 +149,7 @@ const getSignalStatus = async (req, res) => {
       success: false,
       error: 'Failed to check Signal status',
       connected: false,
+      phoneNumber: null,
     });
   }
 };
