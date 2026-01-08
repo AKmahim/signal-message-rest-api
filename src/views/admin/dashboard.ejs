@@ -488,15 +488,21 @@
           <span class="status-dot"></span>
           <span id="signalStatusText">Checking...</span>
         </div>
+        <span id="connectedPhone" style="margin-left: 10px; color: #666; font-size: 14px;"></span>
+      </div>
+      <div class="btn-group" style="margin-top: 15px;">
         <button class="btn-signal" id="connectSignalBtn" onclick="showQRCode()">
           🔗 Connect Signal App
         </button>
         <button class="btn btn-secondary" onclick="checkSignalStatus()">
           🔄 Refresh Status
         </button>
+        <button class="btn btn-secondary" id="disconnectBtn" onclick="disconnectSignal()" style="display: none; background: #dc3545; color: white;">
+          🔌 Disconnect Signal
+        </button>
       </div>
       <div class="signal-info">
-        <strong>💡 Tip:</strong> Click "Connect Signal App" to display a QR code. Open Signal on your phone → Settings → Linked Devices → Link New Device → Scan the QR code.
+        <strong>💡 Tip:</strong> Click "Connect Signal App" to display a QR code. Open Signal on your phone → Settings → Linked Devices → Link New Device → Scan the QR code. Use "Disconnect Signal" to remove the current account and connect a new one.
       </div>
     </div>
 
@@ -566,6 +572,8 @@
       const statusEl = document.getElementById('signalStatus');
       const statusText = document.getElementById('signalStatusText');
       const connectBtn = document.getElementById('connectSignalBtn');
+      const disconnectBtn = document.getElementById('disconnectSignalBtn');
+      const connectedPhoneEl = document.getElementById('connectedPhone');
       
       try {
         const response = await fetch('/admin/api/signal/status');
@@ -575,15 +583,61 @@
           statusEl.className = 'status-indicator status-connected';
           statusText.textContent = 'Connected';
           connectBtn.textContent = '✅ Signal Connected';
+          disconnectBtn.style.display = 'inline-block';
+          
+          // Show connected phone if available
+          if (data.phoneNumber) {
+            connectedPhoneEl.textContent = `📱 ${data.phoneNumber}`;
+            connectedPhoneEl.style.display = 'block';
+          }
         } else {
           statusEl.className = 'status-indicator status-disconnected';
           statusText.textContent = 'Not Connected';
           connectBtn.textContent = '🔗 Connect Signal App';
+          disconnectBtn.style.display = 'none';
+          connectedPhoneEl.style.display = 'none';
         }
       } catch (error) {
         console.error('Error checking Signal status:', error);
         statusEl.className = 'status-indicator status-disconnected';
         statusText.textContent = 'Unable to check';
+        disconnectBtn.style.display = 'none';
+        connectedPhoneEl.style.display = 'none';
+      }
+    }
+
+    async function disconnectSignal() {
+      if (!confirm('Are you sure you want to disconnect the current Signal account? You will need to reconnect with a QR code.')) {
+        return;
+      }
+
+      const disconnectBtn = document.getElementById('disconnectSignalBtn');
+      const originalText = disconnectBtn.textContent;
+      disconnectBtn.disabled = true;
+      disconnectBtn.textContent = '⏳ Disconnecting...';
+
+      try {
+        const response = await fetch('/admin/api/signal/disconnect', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          alert('✅ Signal account disconnected successfully!');
+          checkSignalStatus();
+        } else {
+          alert('❌ Failed to disconnect: ' + (data.error || 'Unknown error'));
+          disconnectBtn.disabled = false;
+          disconnectBtn.textContent = originalText;
+        }
+      } catch (error) {
+        console.error('Error disconnecting Signal:', error);
+        alert('❌ Failed to disconnect Signal account');
+        disconnectBtn.disabled = false;
+        disconnectBtn.textContent = originalText;
       }
     }
 

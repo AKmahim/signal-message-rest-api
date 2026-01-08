@@ -25,5 +25,6 @@ router.get('/api/messages', isAuthenticated, adminController.getMessages);
 router.get('/api/stats', isAuthenticated, adminController.getStats);
 router.get('/api/signal/qrcode', isAuthenticated, adminController.getSignalQRCode);
 router.get('/api/signal/status', isAuthenticated, adminController.getSignalStatus);
+router.post('/api/signal/disconnect', isAuthenticated, adminController.disconnectSignal);
 
 module.exports = router;

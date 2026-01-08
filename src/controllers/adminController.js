@@ -149,6 +149,36 @@ const getSignalStatus = async (req, res) => {
   }
 };
 
+// Disconnect Signal account
+const disconnectSignal = async (req, res) => {
+  try {
+    const { phoneNumber } = req.body;
+    
+    if (!phoneNumber) {
+      return res.status(400).json({
+        success: false,
+        error: 'Phone number is required',
+      });
+    }
+
+    // Unregister the account from Signal CLI
+    await axios.post(
+      `${config.signalCliRestApiUrl}/v1/unregister/${phoneNumber}`
+    );
+
+    res.json({
+      success: true,
+      message: 'Signal account disconnected successfully',
+    });
+  } catch (error) {
+    console.error('Disconnect error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to disconnect Signal account',
+    });
+  }
+};
+
 module.exports = {
   showLogin,
   login,
@@ -158,4 +188,5 @@ module.exports = {
   getStats,
   getSignalQRCode,
   getSignalStatus,
+  disconnectSignal,
 };
