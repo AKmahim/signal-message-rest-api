@@ -506,6 +506,46 @@
       </div>
     </div>
 
+    <!-- Rate Limit / CAPTCHA Section -->
+    <div class="signal-connection" id="captchaSection">
+      <h2>🔓 Rate Limit / CAPTCHA Challenge</h2>
+      <p style="color: #666; margin-bottom: 15px;">If you're getting rate limited when sending messages, use this section to submit a CAPTCHA challenge.</p>
+      
+      <div class="filter-grid" style="margin-bottom: 15px;">
+        <div class="form-group">
+          <label for="challengeToken">Challenge Token (auto-filled when detected)</label>
+          <input type="text" id="challengeToken" placeholder="e.g., cb19b279-e2c0-4646-ba43-0a84e7967dfe">
+        </div>
+        <div class="form-group">
+          <label for="captchaToken">CAPTCHA Token <span style="color: #c33;">*</span></label>
+          <input type="text" id="captchaToken" placeholder="Paste the signalcaptcha://... link here">
+        </div>
+      </div>
+      
+      <div class="btn-group" style="margin-bottom: 15px;">
+        <button class="btn btn-primary" onclick="submitCaptcha()">
+          ✅ Submit CAPTCHA
+        </button>
+        <button class="btn btn-secondary" onclick="triggerChallenge()">
+          🔍 Check Rate Limit Status
+        </button>
+        <a href="https://signalcaptchas.org/challenge/generate.html" target="_blank" class="btn btn-secondary" style="text-decoration: none;">
+          🔗 Get CAPTCHA Token
+        </a>
+      </div>
+      
+      <div id="captchaResult" style="display: none;"></div>
+      
+      <div class="signal-info" style="background: #fff3cd; border-left-color: #ffc107;">
+        <strong>📋 How to solve rate limiting:</strong><br>
+        1. Click "Check Rate Limit Status" to see if you're rate limited and get the challenge token<br>
+        2. Click "Get CAPTCHA Token" to open Signal's CAPTCHA page<br>
+        3. Solve the CAPTCHA, right-click "Open Signal" and copy the link<br>
+        4. Paste the link in the CAPTCHA Token field<br>
+        5. Click "Submit CAPTCHA" immediately (tokens expire in ~2 minutes!)
+      </div>
+    </div>
+
     <!-- QR Code Modal -->
     <div class="modal-overlay" id="qrModal">
       <div class="modal">
@@ -815,6 +855,96 @@
     function showError(message) {
       document.getElementById('tableContainer').innerHTML = 
         `<div class="no-data" style="color: #c33;">${message}</div>`;
+    }
+
+    // CAPTCHA Functions
+    async function submitCaptcha() {
+      const challenge = document.getElementById('challengeToken').value.trim();
+      const captcha = document.getElementById('captchaToken').value.trim();
+      const resultDiv = document.getElementById('captchaResult');
+      
+      if (!captcha) {
+        showCaptchaResult('error', '❌ Please enter the CAPTCHA token (signalcaptcha://... link)');
+        return;
+      }
+      
+      if (!captcha.startsWith('signalcaptcha://')) {
+        showCaptchaResult('error', '❌ Invalid CAPTCHA token. It should start with signalcaptcha://');
+        return;
+      }
+      
+      showCaptchaResult('loading', '⏳ Submitting CAPTCHA...');
+      
+      try {
+        const response = await fetch('/admin/api/signal/submit-captcha', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ challenge, captcha })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          showCaptchaResult('success', `✅ ${data.message}`);
+          // Clear the fields on success
+          document.getElementById('challengeToken').value = '';
+          document.getElementById('captchaToken').value = '';
+        } else {
+          showCaptchaResult('error', `❌ ${data.error}`);
+        }
+      } catch (error) {
+        console.error('Submit CAPTCHA error:', error);
+        showCaptchaResult('error', '❌ Failed to submit CAPTCHA. Please try again.');
+      }
+    }
+    
+    async function triggerChallenge() {
+      const resultDiv = document.getElementById('captchaResult');
+      showCaptchaResult('loading', '⏳ Checking rate limit status...');
+      
+      try {
+        const response = await fetch('/admin/api/signal/trigger-challenge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          showCaptchaResult('success', `✅ ${data.message}`);
+        } else if (data.rateLimited) {
+          // Auto-fill challenge token
+          if (data.challengeToken) {
+            document.getElementById('challengeToken').value = data.challengeToken;
+          }
+          showCaptchaResult('warning', `⚠️ Rate Limited!<br><br><strong>Challenge Token:</strong> ${data.challengeToken || 'Not found'}<br><br>Now get a fresh CAPTCHA token and submit it within 2 minutes!`);
+        } else {
+          showCaptchaResult('error', `❌ ${data.message || 'Unknown error'}`);
+        }
+      } catch (error) {
+        console.error('Trigger challenge error:', error);
+        showCaptchaResult('error', '❌ Failed to check rate limit status.');
+      }
+    }
+    
+    function showCaptchaResult(type, message) {
+      const resultDiv = document.getElementById('captchaResult');
+      resultDiv.style.display = 'block';
+      
+      const colors = {
+        success: { bg: '#d4edda', border: '#28a745', text: '#155724' },
+        error: { bg: '#f8d7da', border: '#dc3545', text: '#721c24' },
+        warning: { bg: '#fff3cd', border: '#ffc107', text: '#856404' },
+        loading: { bg: '#e7f3ff', border: '#3a76f0', text: '#1a4d8c' }
+      };
+      
+      const style = colors[type] || colors.error;
+      resultDiv.innerHTML = `
+        <div style="background: ${style.bg}; border-left: 4px solid ${style.border}; padding: 15px; border-radius: 0 8px 8px 0; color: ${style.text}; margin-top: 15px;">
+          ${message}
+        </div>
+      `;
     }
   </script>
 </body>

@@ -26,5 +26,7 @@ router.get('/api/stats', isAuthenticated, adminController.getStats);
 router.get('/api/signal/qrcode', isAuthenticated, adminController.getSignalQRCode);
 router.get('/api/signal/status', isAuthenticated, adminController.getSignalStatus);
 router.post('/api/signal/disconnect', isAuthenticated, adminController.disconnectSignal);
+router.post('/api/signal/submit-captcha', isAuthenticated, adminController.submitCaptcha);
+router.post('/api/signal/trigger-challenge', isAuthenticated, adminController.triggerChallenge);
 
 module.exports = router;

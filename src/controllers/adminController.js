@@ -184,6 +184,102 @@ const disconnectSignal = async (req, res) => {
   }
 };
 
+// Submit rate limit challenge with CAPTCHA
+const submitCaptcha = async (req, res) => {
+  try {
+    const { challenge, captcha, phoneNumber } = req.body;
+
+    if (!captcha) {
+      return res.status(400).json({
+        success: false,
+        error: 'CAPTCHA token is required',
+      });
+    }
+
+    const accountNumber = phoneNumber || config.signalSenderNumber;
+
+    const response = await axios.post(
+      `${config.signalCliRestApiUrl}/v1/accounts/${accountNumber}/rate-limit-challenge`,
+      {
+        challenge: challenge || '',
+        captcha: captcha,
+      },
+      {
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 30000,
+      }
+    );
+
+    res.json({
+      success: true,
+      message: 'CAPTCHA submitted successfully! Rate limit should be cleared.',
+      data: response.data,
+    });
+  } catch (error) {
+    console.error('Submit CAPTCHA error:', error.message);
+    const errorMessage = error.response?.data?.error || error.message || 'Failed to submit CAPTCHA';
+    res.status(500).json({
+      success: false,
+      error: errorMessage,
+    });
+  }
+};
+
+// Trigger a test message to get the challenge token
+const triggerChallenge = async (req, res) => {
+  try {
+    const { testNumber } = req.body;
+    const recipientNumber = testNumber || '+8801700000000';
+
+    const response = await axios.post(
+      `${config.signalCliRestApiUrl}/v2/send`,
+      {
+        number: config.signalSenderNumber,
+        recipients: [recipientNumber],
+        message: 'test',
+      },
+      {
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 30000,
+        validateStatus: () => true, // Accept all status codes
+      }
+    );
+
+    // Check if rate limited
+    if (response.data?.error && response.data.error.includes('CAPTCHA proof required')) {
+      // Extract challenge token from error message
+      const challengeMatch = response.data.error.match(/challenge token "([^"]+)"/);
+      const challengeToken = challengeMatch ? challengeMatch[1] : null;
+
+      res.json({
+        success: false,
+        rateLimited: true,
+        challengeToken: challengeToken,
+        message: 'Rate limited! Use the challenge token below with a fresh CAPTCHA.',
+        rawError: response.data.error,
+      });
+    } else if (response.data?.timestamp) {
+      res.json({
+        success: true,
+        message: 'Test message sent successfully! No rate limit active.',
+        data: response.data,
+      });
+    } else {
+      res.json({
+        success: false,
+        message: 'Unexpected response',
+        data: response.data,
+      });
+    }
+  } catch (error) {
+    console.error('Trigger challenge error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to trigger challenge',
+    });
+  }
+};
+
 module.exports = {
   showLogin,
   login,
@@ -194,4 +290,6 @@ module.exports = {
   getSignalQRCode,
   getSignalStatus,
   disconnectSignal,
+  submitCaptcha,
+  triggerChallenge,
 };
