@@ -229,14 +229,15 @@ const submitCaptcha = async (req, res) => {
 const triggerChallenge = async (req, res) => {
   try {
     const { testNumber } = req.body;
-    const recipientNumber = testNumber || '+8801700000000';
+    // Use sender's own number for testing (always works) or user-provided number
+    const recipientNumber = testNumber || config.signalSenderNumber;
 
     const response = await axios.post(
       `${config.signalCliRestApiUrl}/v2/send`,
       {
         number: config.signalSenderNumber,
         recipients: [recipientNumber],
-        message: 'test',
+        message: 'Rate limit test - please ignore',
       },
       {
         headers: { 'Content-Type': 'application/json' },
@@ -261,13 +262,19 @@ const triggerChallenge = async (req, res) => {
     } else if (response.data?.timestamp) {
       res.json({
         success: true,
-        message: 'Test message sent successfully! No rate limit active.',
+        message: 'Test message sent successfully! No rate limit active. You can send messages now.',
+        data: response.data,
+      });
+    } else if (response.data?.error && response.data.error.includes('Unregistered user')) {
+      res.json({
+        success: false,
+        message: 'Test number is not on Signal. But no rate limit detected!',
         data: response.data,
       });
     } else {
       res.json({
         success: false,
-        message: 'Unexpected response',
+        message: 'Unexpected response from Signal API',
         data: response.data,
       });
     }
